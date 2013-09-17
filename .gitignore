@@ -1,3 +1,5 @@
 env
 .env
 *.pyc
+build
+rethinkengine.egg-info

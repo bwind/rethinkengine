@@ -5,6 +5,10 @@ from rethinkengine.queryset import QuerySet
 import rethinkdb as r
 
 
+class ValidationError(Exception):
+    pass
+
+
 class BaseDocument(type):
     def __new__(cls, name, bases, attrs):
         attrs['_fields'] = attrs.get('_fields', {})
@@ -64,7 +68,15 @@ class Document(object):
     def table_create(self):
         return Connection._db.table_create(self._table_name()).run(Connection._conn)
 
+    def validate(self):
+        data = [(field, getattr(self, name)) for name, field in self._fields.items()]
+
+        for field, value in data:
+            if not field.is_valid(value):
+                raise ValidationError
+
     def save(self):
+        self.validate()
         return Connection._db.table(self._table_name()).insert(self._doc).run(Connection._conn)
 
     @property

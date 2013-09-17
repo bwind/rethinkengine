@@ -25,32 +25,35 @@ class BaseDocument(type):
 class Document(object):
     __metaclass__ = BaseDocument
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, _doc=None, *args, **kwargs):
         super(Document, self).__init__()
         self.__dict__['_data'] = {}
-        if '_doc' in kwargs:
-            for name, value in kwargs['_doc'].items():
+        if _doc is not None:
+            for name, value in _doc.items():
                 if name == self.Meta.primary_key_field:
                     self._fields['pk'] = PrimaryKeyField()
                     self._data['pk'] = value
                 if name not in self._fields:
                     continue
-                self._data[name] = value
+                setattr(self, name, value)
         else:
             for name, value in kwargs.items():
-                if name not in self._fields:
-                    # TODO: raise error
-                    continue
-                # TODO: validate value
-                self._data[name] = value
+                setattr(self, name, value)
 
     def __setattr__(self, key, value):
-        if key in self._data:
+        field = self._fields.get(key, None)
+        if field is None:
+            raise AttributeError
+        valid = field.is_valid(value)
+        if valid:
             self._data[key] = value
-        raise AttributeError
+        else:
+            raise ValidationError
+        super(Document, self).__setattr__(key, value)
 
     def __getattr__(self, key):
-        if key in self._fields:
+        field = self._fields.get(key)
+        if field:
             return self._data.get(key, self._fields[key]._default)
         raise AttributeError
 

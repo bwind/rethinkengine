@@ -10,9 +10,18 @@ class InvalidQueryError(Exception):
     pass
 
 
+class MultipleDocumentsReturned(Exception):
+    pass
+
+
+class DoesNotExist(Exception):
+    pass
+
+
 class QuerySet(object):
     def __init__(self):
         self._filter = {}
+        self._limit = None
         self._order_by = None
         self._cursor_obj = None
 
@@ -26,6 +35,9 @@ class QuerySet(object):
 
             if self._order_by:
                 self._cursor_obj = self._cursor_obj.order_by(self._order_by)
+
+            if self._limit:
+                self._cursor_obj = self._cursor_obj.limit(self._limit)
 
         return self._cursor_obj.run(Connection._conn)
 
@@ -64,8 +76,19 @@ class QuerySet(object):
     def exclude(self):
         pass
 
-    def get(self):
-        pass
+    def get(self, **query):
+        self.filter(**query)
+        self._limit = 2
+
+        ret = None
+        for doc in self:
+            if ret:
+                raise MultipleDocumentsReturned
+            ret = doc
+
+        if ret:
+            return doc
+        raise DoesNotExist
 
     def get_or_create(self):
         pass

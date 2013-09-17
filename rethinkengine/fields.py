@@ -1,5 +1,6 @@
 class BaseField(object):
     def __init__(self):
+        # TODO: add 'required' keyword
         self._default = None
 
     def __repr__(self):

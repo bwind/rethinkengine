@@ -1,6 +1,6 @@
 from rethinkengine.connection import Connection
 from rethinkengine.fields import BaseField, PrimaryKeyField
-from rethinkengine.queryset import QuerySet
+from rethinkengine.queryset import QuerySet, DoesNotExist, MultipleDocumentsReturned
 
 import rethinkdb as r
 
@@ -19,6 +19,10 @@ class BaseDocument(type):
             del attrs[field_name]
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
         new_class.objects = QuerySet()
+
+        # TODO: Merge exceptions
+        exceptions = (DoesNotExist, MultipleDocumentsReturned)
+
         return new_class
 
 
@@ -30,7 +34,7 @@ class Document(object):
         self.__dict__['_data'] = {}
         if '_doc' in kwargs:
             for name, value in kwargs['_doc'].items():
-                if name == 'id':
+                if name == self.Meta.primary_key_field:
                     self._fields['pk'] = PrimaryKeyField()
                     self._data['pk'] = value
                 if name not in self._fields:
@@ -39,7 +43,9 @@ class Document(object):
         else:
             for name, value in kwargs.items():
                 if name not in self._fields:
+                    # TODO: raise error
                     continue
+                # TODO: validate value
                 self._data[name] = value
 
     def __setattr__(self, key, value):
@@ -63,21 +69,24 @@ class Document(object):
         return '<%s object>' % self.__class__.__name__
 
     def items(self):
-        return [(k, self._data.get(k, self._fields[k]._default)) for k in self._fields]
+        return [(k, self._data.get(k, self._fields[k]._default)) for k in
+            self._fields]
 
     def table_create(self):
         return Connection._db.table_create(self._table_name()).run(Connection._conn)
 
     def validate(self):
         data = [(field, getattr(self, name)) for name, field in self._fields.items()]
-
         for field, value in data:
             if not field.is_valid(value):
                 raise ValidationError
 
     def save(self):
+        # TODO: only save if doc changed
+        # TODO: upsert/insert
         self.validate()
-        return Connection._db.table(self._table_name()).insert(self._doc).run(Connection._conn)
+        return Connection._db.table(self._table_name()).insert(self._doc
+            ).run(Connection._conn)
 
     @property
     def _doc(self):

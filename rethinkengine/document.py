@@ -19,10 +19,6 @@ class BaseDocument(type):
             del attrs[field_name]
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
         new_class.objects = QuerySet()
-
-        # TODO: Merge exceptions
-        exceptions = (DoesNotExist, MultipleDocumentsReturned)
-
         return new_class
 
 
@@ -51,12 +47,12 @@ class Document(object):
     def __setattr__(self, key, value):
         if key in self._data:
             self._data[key] = value
-        super(Document, self).__setattr__(key, value)
+        raise AttributeError
 
     def __getattr__(self, key):
         if key in self._fields:
             return self._data.get(key, self._fields[key]._default)
-        super(Document, self).__getattr__(key)
+        raise AttributeError
 
     def __str__(self):
         return '<%s object>' % self.__class__.__name__

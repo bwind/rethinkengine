@@ -20,37 +20,44 @@ class DoesNotExist(Exception):
 
 class QuerySet(object):
     def __init__(self):
-        self._filter = {}
-        self._limit = None
-        self._order_by = None
-        self._cursor_obj = None
+        self._reset()
 
     @property
     def _cursor(self):
         if not self._cursor_obj:
             self._cursor_obj = Connection._db.table(self._document._table_name())
-
             if self._filter:
                 self._cursor_obj = self._cursor_obj.filter(self._filter)
-
             if self._order_by:
                 self._cursor_obj = self._cursor_obj.order_by(self._order_by)
-
             if self._limit:
                 self._cursor_obj = self._cursor_obj.limit(self._limit)
 
-        return self._cursor_obj.run(Connection._conn)
+        if not self._cursor_iter:
+            self._cursor_iter = iter(self._cursor_obj.run(Connection._conn))
+
+        return self._cursor_iter
 
     def __get__(self, instance, owner):
         self._document = owner
+        self._reset()
         return self
 
     def __call__(self):
         return self
 
+    def _reset(self):
+        self._filter = {}
+        self._limit = None
+        self._order_by = None
+        self._cursor_obj = None
+        self._cursor_iter = None
+
     def __iter__(self):
-        for doc in self._cursor:
-            yield self._document(_doc=doc)
+        return self
+
+    def next(self):
+        return self._document(_doc=self._cursor.next())
 
     def __repr__(self):
         data = []
@@ -79,16 +86,15 @@ class QuerySet(object):
     def get(self, **query):
         self.filter(**query)
         self._limit = 2
-
-        ret = None
-        for doc in self:
-            if ret:
-                raise MultipleDocumentsReturned
-            ret = doc
-
-        if ret:
-            return doc
-        raise DoesNotExist
+        try:
+            doc1 = self.next()
+        except StopIteration:
+            raise DoesNotExist
+        try:
+            doc2 = self.next()
+        except StopIteration:
+            return doc1
+        raise MultipleDocumentsReturned
 
     def get_or_create(self):
         pass
@@ -97,6 +103,7 @@ class QuerySet(object):
         pass
 
     def __len__(self):
+        # TODO: implement
         pass
 
     def limit(self):

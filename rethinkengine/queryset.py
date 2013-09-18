@@ -19,8 +19,13 @@ class DoesNotExist(Exception):
 
 
 class QuerySet(object):
-    def __init__(self):
-        self._reset()
+    def __init__(self, document):
+        self._document = document
+        self._filter = {}
+        self._limit = None
+        self._order_by = None
+        self._cursor_obj = None
+        self._cursor_iter = None
 
     @property
     def _cursor(self):
@@ -40,18 +45,10 @@ class QuerySet(object):
 
     def __get__(self, instance, owner):
         self._document = owner
-        self._reset()
         return self
 
     def __call__(self):
         return self
-
-    def _reset(self):
-        self._filter = {}
-        self._limit = None
-        self._order_by = None
-        self._cursor_obj = None
-        self._cursor_iter = None
 
     def __iter__(self):
         return self
@@ -120,3 +117,9 @@ class QuerySet(object):
 
     def update(self):
         pass
+
+
+class QuerySetManager(object):
+    def __get__(self, instance, owner):
+        # Returns a new QuerySet instance when Document.objects is accessed
+        return QuerySet(document=owner)

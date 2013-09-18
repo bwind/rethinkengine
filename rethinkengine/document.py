@@ -1,6 +1,7 @@
 from rethinkengine.connection import Connection
 from rethinkengine.fields import BaseField, PrimaryKeyField
-from rethinkengine.queryset import QuerySet, DoesNotExist, MultipleDocumentsReturned
+from rethinkengine.queryset import QuerySet, QuerySetManager, DoesNotExist, \
+    MultipleDocumentsReturned
 
 import rethinkdb as r
 
@@ -18,7 +19,7 @@ class BaseDocument(type):
             attrs['_fields'][field_name] = field
             del attrs[field_name]
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
-        new_class.objects = QuerySet()
+        new_class.objects = QuerySetManager()
         return new_class
 
 

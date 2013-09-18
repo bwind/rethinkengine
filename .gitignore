@@ -3,3 +3,4 @@ env
 *.pyc
 build
 rethinkengine.egg-info
+.coverage

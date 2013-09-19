@@ -23,29 +23,53 @@ class QuerySet(object):
         self._document = document
         self._filter = {}
         self._limit = None
+        self._count = False
         self._order_by = None
         self._cursor_obj = None
         self._cursor_iter = None
+        self._iter_index = 0
 
     @property
     def _cursor(self):
         if not self._cursor_obj:
-            self._cursor_obj = r.table(self._document._table_name())
-            if self._filter:
-                self._cursor_obj = self._cursor_obj.filter(self._filter)
-            if self._order_by:
-                self._cursor_obj = self._cursor_obj.order_by(self._order_by)
-            if self._limit:
-                self._cursor_obj = self._cursor_obj.limit(self._limit)
-
-        if not self._cursor_iter:
-            self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
-
+            self._build_cursor_obj()
         return self._cursor_iter
+
+    def _build_cursor_obj(self):
+        self._cursor_obj = r.table(self._document._table_name())
+        if self._filter:
+            self._cursor_obj = self._cursor_obj.filter(self._filter)
+
+        order_by = self._order_by or self._document.Meta.order_by
+        if order_by:
+            self._cursor_obj = self._cursor_obj.order_by(*order_by)
+
+        if self._limit:
+            self._cursor_obj = self._cursor_obj.limit(self._limit)
+
+        self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
 
     def __get__(self, instance, owner):
         self._document = owner
         return self
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            # Get the start, stop, and step from the slice
+            self._iter_index = 0
+            self._build_cursor_obj()
+            return [self[i] for i in xrange(*key.indices(len(self)))]
+        elif isinstance(key, int):
+            if key < 0:
+                raise AssertionError('Negative indexing is not supported')
+            if key >= len(self):
+                raise IndexError('List index out of range')
+            for i in xrange(self._iter_index - key):
+                self.next()
+            doc = self.next()
+            return doc
+        else:
+            raise TypeError('Invalid argument type')
 
     def __call__(self):
         return self
@@ -54,6 +78,7 @@ class QuerySet(object):
         return self
 
     def next(self):
+        self._iter_index += 1
         return self._document(_doc=self._cursor.next())
 
     def __repr__(self):
@@ -100,8 +125,9 @@ class QuerySet(object):
         pass
 
     def __len__(self):
-        # TODO: implement
-        pass
+        if not self._cursor_obj:
+            self._build_cursor_obj()
+        return self._cursor_obj.count().run(get_conn())
 
     def limit(self):
         pass
@@ -109,8 +135,9 @@ class QuerySet(object):
     def skip(self):
         pass
 
-    def order_by(self):
-        pass
+    def order_by(self, *order_by):
+        self._order_by = order_by
+        return self
 
     def delete(self):
         pass

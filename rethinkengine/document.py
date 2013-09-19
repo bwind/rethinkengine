@@ -1,6 +1,6 @@
 from rethinkengine.connection import get_conn
 from rethinkengine.fields import BaseField, PrimaryKeyField
-from rethinkengine.queryset import QuerySet, QuerySetManager, DoesNotExist, \
+from rethinkengine.query_set import QuerySet, QuerySetManager, DoesNotExist, \
     MultipleDocumentsReturned
 
 import rethinkdb as r
@@ -18,6 +18,7 @@ class BaseDocument(type):
                 continue
             attrs['_fields'][field_name] = field
             del attrs[field_name]
+        attrs['_fields']['pk'] = PrimaryKeyField()
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
         new_class.objects = QuerySetManager()
         return new_class
@@ -42,6 +43,7 @@ class Document(object):
                 setattr(self, name, value)
 
     def __setattr__(self, key, value):
+        #print 'Setting %s to %s' % (key, value)
         field = self._fields.get(key, None)
         if field is None:
             raise AttributeError
@@ -49,7 +51,8 @@ class Document(object):
         if valid:
             self._data[key] = value
         else:
-            raise ValidationError
+            raise ValidationError('%s.%s is of wrong type %s' %
+                (self.__class__.__name, key, type(value)))
         super(Document, self).__setattr__(key, value)
 
     def __getattr__(self, key):
@@ -81,8 +84,11 @@ class Document(object):
     def validate(self):
         data = [(field, getattr(self, name)) for name, field in self._fields.items()]
         for field, value in data:
+            if isinstance(field, PrimaryKeyField) and value is None:
+                continue
             if not field.is_valid(value):
-                raise ValidationError
+                raise ValidationError('%s is of wrong type %s' %
+                    (field.__class__.__name__, type(value)))
 
     def save(self):
         # TODO: only save if doc changed
@@ -97,7 +103,10 @@ class Document(object):
         doc = {}
         for name in self._fields:
             key = self.Meta.primary_key_field if name == 'pk' else name
-            doc[key] = self._data.get(name, self._fields[name]._default)
+            value = self._data.get(name, self._fields[name]._default)
+            if key == self.Meta.primary_key_field and value is None:
+                continue
+            doc[key] = value
         return doc
 
     @classmethod

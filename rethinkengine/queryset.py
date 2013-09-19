@@ -1,4 +1,4 @@
-from rethinkengine.connection import Connection
+from rethinkengine.connection import get_conn
 
 import rethinkdb as r
 
@@ -30,7 +30,7 @@ class QuerySet(object):
     @property
     def _cursor(self):
         if not self._cursor_obj:
-            self._cursor_obj = Connection._db.table(self._document._table_name())
+            self._cursor_obj = r.table(self._document._table_name())
             if self._filter:
                 self._cursor_obj = self._cursor_obj.filter(self._filter)
             if self._order_by:
@@ -39,7 +39,7 @@ class QuerySet(object):
                 self._cursor_obj = self._cursor_obj.limit(self._limit)
 
         if not self._cursor_iter:
-            self._cursor_iter = iter(self._cursor_obj.run(Connection._conn))
+            self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
 
         return self._cursor_iter
 

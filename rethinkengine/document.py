@@ -1,4 +1,4 @@
-from rethinkengine.connection import Connection
+from rethinkengine.connection import get_conn
 from rethinkengine.fields import BaseField, PrimaryKeyField
 from rethinkengine.queryset import QuerySet, QuerySetManager, DoesNotExist, \
     MultipleDocumentsReturned
@@ -73,7 +73,7 @@ class Document(object):
             self._fields]
 
     def table_create(self):
-        return Connection._db.table_create(self._table_name()).run(Connection._conn)
+        return r.table_create(self._table_name()).run(get_conn())
 
     def validate(self):
         data = [(field, getattr(self, name)) for name, field in self._fields.items()]
@@ -85,8 +85,9 @@ class Document(object):
         # TODO: only save if doc changed
         # TODO: upsert/insert
         self.validate()
-        return Connection._db.table(self._table_name()).insert(self._doc
-            ).run(Connection._conn)
+        doc = self._doc
+        table = r.table(self._table_name())
+        return table.insert(doc).run(get_conn())
 
     @property
     def _doc(self):

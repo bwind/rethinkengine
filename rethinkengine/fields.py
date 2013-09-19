@@ -20,6 +20,15 @@ class TextField(BaseField):
         return isinstance(value, basestring)
 
 
+class IntegerField(BaseField):
+    def __init__(self):
+        super(IntegerField, self).__init__()
+        self._default = 0
+
+    def is_valid(self, value):
+        return isinstance(value, (int, long))
+
+
 class ListField(BaseField):
     def __init__(self):
         super(ListField, self).__init__()

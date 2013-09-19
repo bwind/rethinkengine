@@ -75,6 +75,9 @@ class Document(object):
     def table_create(self):
         return r.table_create(self._table_name()).run(get_conn())
 
+    def table_drop(self):
+        return r.table_drop(self._table_name()).run(get_conn())
+
     def validate(self):
         data = [(field, getattr(self, name)) for name, field in self._fields.items()]
         for field, value in data:

@@ -1,18 +1,20 @@
 language: python
 
 python:
-  - "2.6"
-  - "2.7"
+    - "2.6"
+    - "2.7"
 
 install:
     - "pip install -r requirements.txt --use-mirrors"
     - "pip install -r requirements-test.txt --use-mirrors"
 
 before_install:
-  - sudo add-apt-repository ppa:rethinkdb/ppa -y
-  - sudo apt-get update -qq
-  - sudo apt-get install rethinkdb -y
+    - sudo add-apt-repository ppa:rethinkdb/ppa -y
+    - sudo apt-get update -qq
+    - sudo apt-get install rethinkdb -y
 
 before_script: rethinkdb --daemon
 
-script: nosetests
+script: nosetests --with-coverage --cover-package=rethinkengine --nocapture --cover-erase
+
+after_success: coveralls

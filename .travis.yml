@@ -15,6 +15,6 @@ before_install:
 
 before_script: rethinkdb --daemon
 
-script: nosetests --with-coverage --cover-package=rethinkengine --nocapture --cover-erase
+script: nosetests --with-coverage
 
 after_success: coveralls

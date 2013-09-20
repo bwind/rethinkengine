@@ -8,7 +8,9 @@ Rethinkengine is currently in development and not ready for production use.
 Running unit tests
 ------------------
 
-In the root of the repository you'll find `runtests.sh`, which will run all the tests and show coverage stats. Requires packages `nose` and `coverage` to be installed.
+[![Build Status](https://travis-ci.org/bwind/rethinkengine.png?branch=master)](https://travis-ci.org/bwind/rethinkengine)
+
+In the root of the repository you'll find `runtests.sh`, which will run all the tests and show coverage stats. Requires packages `nose` and `coverage` to be installed. Rethinkengine aims to be compatible with Python versions 2.6 and 2.7. Python 3 support will be added later.
 
 Defining Documents
 ------------------
@@ -46,4 +48,5 @@ Retrieving data
     for u in User.objects.filter(name='John'):
         print u.name, u.colors
 
-    User.objects.all().order_by('name')
+    for u in User.objects.all().order_by('name'):
+        print u.name, u.colors

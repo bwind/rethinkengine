@@ -3,7 +3,11 @@ from rethinkengine.connection import connect, disconnect, get_conn, \
     ConnectionError
 from rethinkengine.document import Document
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 import rethinkdb as r
 
 

@@ -1,9 +1,13 @@
 from rethinkengine.connection import connect, disconnect, get_conn, \
     ConnectionError
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 import rethinkdb
 import rethinkengine.connection
-import unittest
 
 
 class ConnectionTestCase(unittest.TestCase):

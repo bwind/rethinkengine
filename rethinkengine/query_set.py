@@ -47,6 +47,7 @@ class QuerySet(object):
         if self._limit:
             self._cursor_obj = self._cursor_obj.limit(self._limit)
 
+        self._iter_index = 0
         self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
 
     def __get__(self, instance, owner):
@@ -56,7 +57,6 @@ class QuerySet(object):
     def __getitem__(self, key):
         if isinstance(key, slice):
             # Get the start, stop, and step from the slice
-            self._iter_index = 0
             self._build_cursor_obj()
             return [self[i] for i in xrange(*key.indices(len(self)))]
         elif isinstance(key, int):
@@ -140,7 +140,9 @@ class QuerySet(object):
         return self
 
     def delete(self):
-        pass
+        self._build_cursor_obj()
+        for doc in self:
+            doc.delete()
 
     def update(self):
         pass

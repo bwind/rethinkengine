@@ -1,1 +1,1 @@
-from query_set.slice import *
+from query_set import *

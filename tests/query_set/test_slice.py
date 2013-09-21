@@ -1,14 +1,9 @@
 from rethinkengine.fields import *
-from rethinkengine.connection import connect, disconnect, get_conn, \
-    ConnectionError
+from rethinkengine.connection import connect, disconnect, ConnectionError
 from rethinkengine.document import Document
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import rethinkdb as r
+import unittest2 as unittest
 
 
 DB_NAME = 'test'
@@ -20,7 +15,15 @@ class Foo(Document):
 
 def setUp():
     connect(DB_NAME)
+    try:
+        Foo().table_drop()
+    except r.RqlRuntimeError as e:
+        print e
+    Foo().table_create()
 
+    Foo(name='foo1').save()
+    Foo(name='foo2').save()
+    Foo(name='foo3').save()
 
 def tearDown():
     try:
@@ -30,20 +33,6 @@ def tearDown():
 
 
 class SliceTestCase(unittest.TestCase):
-    def setUp(self):
-        try:
-            Foo().table_drop()
-        except r.RqlRuntimeError as e:
-            print e
-        Foo().table_create()
-
-        Foo(name='foo1').save()
-        Foo(name='foo2').save()
-        Foo(name='foo3').save()
-
-    def tearDown(self):
-        pass
-
     def test_out_of_range(self):
         with self.assertRaises(IndexError):
             Foo.objects.all()[3]

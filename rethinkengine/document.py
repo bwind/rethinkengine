@@ -98,6 +98,14 @@ class Document(object):
         table = r.table(self._table_name())
         return table.insert(doc).run(get_conn())
 
+    def delete(self):
+        table = r.table(self._table_name())
+        if self._get_value('pk'):
+            return table.get(self._get_value('pk')).delete().run(get_conn())
+
+    def _get_value(self, field_name):
+        return self._data.get(field_name, self._fields[field_name]._default)
+
     @property
     def _doc(self):
         doc = {}

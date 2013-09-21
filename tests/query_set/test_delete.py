@@ -3,6 +3,7 @@ from rethinkengine.document import Document
 from rethinkengine.fields import TextField
 
 import unittest2 as unittest
+import rethinkdb as r
 
 
 DB_NAME = 'test'

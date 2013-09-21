@@ -12,6 +12,12 @@ Running unit tests
 
 In the root of the repository you'll find `runtests.sh`, which will run all the tests and show coverage stats. Requires packages `nose` and `coverage` to be installed. Rethinkengine aims to be compatible with Python versions 2.6 and 2.7. Python 3 support will be added later.
 
+Connecting to RethinkDB
+-----------------------
+
+    from rethinkengine import connect
+    connect('dbname')
+
 Defining Documents
 ------------------
 
@@ -23,12 +29,6 @@ Defining Documents
 
     # Create the table
     User().table_create()
-
-Connecting to RethinkDB
------------------------
-
-    from rethinkengine import connect
-    connect('dbname')
 
 Storing data
 ------------

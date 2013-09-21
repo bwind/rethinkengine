@@ -8,9 +8,9 @@ install:
     - "pip install -r requirements.txt -r requirements-test.txt --use-mirrors"
 
 before_install:
-    - sudo add-apt-repository ppa:rethinkdb/ppa -y
+    - sudo add-apt-repository ppa:rethinkdb/ppa -y --force-yes
     - sudo apt-get update -qq
-    - sudo apt-get install rethinkdb -y
+    - sudo apt-get install rethinkdb -y --force-yes
 
 before_script: rethinkdb --daemon
 

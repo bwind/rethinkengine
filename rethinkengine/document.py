@@ -30,29 +30,14 @@ class Document(object):
     def __init__(self, _doc=None, *args, **kwargs):
         super(Document, self).__init__()
         self.__dict__['_data'] = {}
-        if _doc is not None:
-            for name, value in _doc.items():
-                if name == self.Meta.primary_key_field:
-                    self._fields['pk'] = PrimaryKeyField()
-                    self._data['pk'] = value
-                if name not in self._fields:
-                    continue
-                setattr(self, name, value)
-        else:
-            for name, value in kwargs.items():
-                setattr(self, name, value)
+        self.__dict__['_iter'] = None
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     def __setattr__(self, key, value):
-        #print 'Setting %s to %s' % (key, value)
         field = self._fields.get(key, None)
-        if field is None:
-            raise AttributeError
-        valid = field.is_valid(value)
-        if valid:
+        if field is not None:
             self._data[key] = value
-        else:
-            raise ValidationError('%s.%s is of wrong type %s' %
-                (self.__class__.__name__, key, type(value)))
         super(Document, self).__setattr__(key, value)
 
     def __getattr__(self, key):
@@ -65,15 +50,19 @@ class Document(object):
         return '<%s object>' % self.__class__.__name__
 
     def __iter__(self):
-        for name in self._fields:
-            yield name
+        return self
+
+    def next(self):
+        if not self._iter:
+            self.__dict__['_iter'] = iter(self._fields)
+        return self._iter.next()
 
     def __repr__(self):
         return '<%s object>' % self.__class__.__name__
 
     def items(self):
-        return [(k, self._data.get(k, self._fields[k]._default)) for k in
-            self._fields]
+        return dict([(k, self._data.get(k, self._fields[k]._default)) for k in
+            self._fields])
 
     def table_create(self):
         return r.table_create(self._table_name()).run(get_conn())

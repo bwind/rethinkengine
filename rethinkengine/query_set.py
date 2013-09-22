@@ -1,4 +1,5 @@
 from rethinkengine.connection import get_conn
+from rethinkengine.fields import PrimaryKeyField
 
 import rethinkdb as r
 
@@ -79,7 +80,15 @@ class QuerySet(object):
 
     def next(self):
         self._iter_index += 1
-        return self._document(_doc=self._cursor.next())
+        doc = self._document()
+        for name, value in self._cursor.next().items():
+            if name == self._document.Meta.primary_key_field:
+                doc._fields['pk'] = PrimaryKeyField()
+                doc._data['pk'] = value
+            if name not in doc._fields:
+                continue
+            setattr(doc, name, value)
+        return doc
 
     def __repr__(self):
         data = []

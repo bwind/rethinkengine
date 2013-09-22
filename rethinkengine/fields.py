@@ -16,6 +16,10 @@ class PrimaryKeyField(BaseField):
 
 
 class TextField(BaseField):
+    def __init__(self):
+        super(TextField, self).__init__()
+        self._default = ''
+
     def is_valid(self, value):
         return isinstance(value, basestring)
 

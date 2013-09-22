@@ -52,7 +52,7 @@ class Document(object):
             self._data[key] = value
         else:
             raise ValidationError('%s.%s is of wrong type %s' %
-                (self.__class__.__name, key, type(value)))
+                (self.__class__.__name__, key, type(value)))
         super(Document, self).__setattr__(key, value)
 
     def __getattr__(self, key):

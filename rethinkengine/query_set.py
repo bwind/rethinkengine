@@ -81,13 +81,15 @@ class QuerySet(object):
     def next(self):
         self._iter_index += 1
         doc = self._document()
+        doc._dirty = False
         for name, value in self._cursor.next().items():
             if name == self._document.Meta.primary_key_field:
                 doc._fields['pk'] = PrimaryKeyField()
                 doc._data['pk'] = value
             if name not in doc._fields:
                 continue
-            setattr(doc, name, value)
+            # Bypass __setattr__ to prevent _dirty from being set to True
+            doc._data[name] = value
         return doc
 
     def __repr__(self):

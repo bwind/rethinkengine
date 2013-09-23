@@ -1,6 +1,10 @@
 from rethinkengine import *
 
+import rethinkdb as r
 import unittest2 as unittest
+
+
+DB_NAME = 'test'
 
 
 class Foo(Document):
@@ -8,7 +12,28 @@ class Foo(Document):
     number = IntegerField()
 
 
+def setUp():
+    connect(DB_NAME)
+
+def tearDown():
+    try:
+        disconnect(DB_NAME)
+    except ConnectionError:
+        pass
+    try:
+        disconnect()
+    except ConnectionError:
+        pass
+
+
 class DocumentTestCase(unittest.TestCase):
+    def setUp(self):
+        try:
+            Foo().table_drop()
+        except r.RqlRuntimeError as e:
+            print e
+        Foo().table_create()
+
     def test_set_does_not_exist(self):
         # Should not raise an error
         f = Foo(doesnotexist='foo')
@@ -37,3 +62,25 @@ class DocumentTestCase(unittest.TestCase):
         items = Foo(name='foo', number=42).items()
         del items['pk']
         self.assertEqual(items, {'name': 'foo', 'number': 42})
+
+    def test_is_dirty_new(self):
+        f = Foo()
+        self.assertTrue(f._dirty)
+
+    def test_is_not_dirty_after_save(self):
+        f = Foo(name='John')
+        f.save()
+        self.assertFalse(f._dirty)
+
+    def test_is_not_dirty_from_db(self):
+        f = Foo(name='John')
+        f.save()
+        f = Foo.objects.get(name='John')
+        self.assertFalse(f._dirty)
+
+    def test_save_non_dirty(self):
+        f = Foo(name='John')
+        f.save()
+        f = Foo.objects.get(name='John')
+        result = f.save()
+        self.assertTrue(result)

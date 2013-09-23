@@ -27,16 +27,19 @@ class BaseDocument(type):
 class Document(object):
     __metaclass__ = BaseDocument
 
-    def __init__(self, _doc=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Document, self).__init__()
         self.__dict__['_data'] = {}
         self.__dict__['_iter'] = None
+        self.__dict__['_dirty'] = True
         for name, value in kwargs.items():
             setattr(self, name, value)
 
     def __setattr__(self, key, value):
         field = self._fields.get(key, None)
         if field is not None:
+            if self._get_value(key) != value:
+                self._dirty = True
             self._data[key] = value
         super(Document, self).__setattr__(key, value)
 
@@ -71,7 +74,8 @@ class Document(object):
         return r.table_drop(self._table_name()).run(get_conn())
 
     def validate(self):
-        data = [(field, getattr(self, name)) for name, field in self._fields.items()]
+        data = [(field, getattr(self, name)) for name, field in
+            self._fields.items()]
         for field, value in data:
             if isinstance(field, PrimaryKeyField) and value is None:
                 continue
@@ -80,12 +84,17 @@ class Document(object):
                     (field.__class__.__name__, type(value)))
 
     def save(self):
-        # TODO: only save if doc changed
         # TODO: upsert/insert
+        if not self._dirty:
+            return True
         self.validate()
         doc = self._doc
         table = r.table(self._table_name())
-        return table.insert(doc).run(get_conn())
+        result = table.insert(doc).run(get_conn())
+        self._dirty = False
+        if 'generated_keys' in result:
+            self._data['pk'] = result['generated_keys'][0]
+        return True
 
     def delete(self):
         table = r.table(self._table_name())

@@ -1,10 +1,7 @@
+from .. import Foo
 from rethinkengine import *
 
 import unittest2 as unittest
-
-
-class Foo(Document):
-    name = TextField()
 
 
 class ValidateTestCase(unittest.TestCase):
@@ -15,4 +12,4 @@ class ValidateTestCase(unittest.TestCase):
 
     def test_validates(self):
         # If Document.__init__ doesn't raise an error, this test passes
-        f = Foo(name='foo')
+        f = Foo(name='foo', number=42)

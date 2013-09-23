@@ -1,38 +1,13 @@
+from .. import Foo
 from rethinkengine import *
 
 import rethinkdb as r
 import unittest2 as unittest
 
 
-DB_NAME = 'test'
-
-
-class Foo(Document):
-    name = TextField()
-    number = IntegerField()
-
-
-def setUp():
-    connect(DB_NAME)
-
-def tearDown():
-    try:
-        disconnect(DB_NAME)
-    except ConnectionError:
-        pass
-    try:
-        disconnect()
-    except ConnectionError:
-        pass
-
-
 class DocumentTestCase(unittest.TestCase):
     def setUp(self):
-        try:
-            Foo().table_drop()
-        except r.RqlRuntimeError as e:
-            print e
-        Foo().table_create()
+        Foo.objects.all().delete()
 
     def test_set_does_not_exist(self):
         # Should not raise an error

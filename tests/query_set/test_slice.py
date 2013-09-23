@@ -1,3 +1,4 @@
+from .. import Foo, DB_NAME
 from rethinkengine.fields import *
 from rethinkengine.connection import connect, disconnect, ConnectionError
 from rethinkengine.document import Document
@@ -6,30 +7,12 @@ import rethinkdb as r
 import unittest2 as unittest
 
 
-DB_NAME = 'test'
-
-
-class Foo(Document):
-    name = TextField()
-
-
 def setUp():
-    connect(DB_NAME)
-    try:
-        Foo().table_drop()
-    except r.RqlRuntimeError as e:
-        print e
-    Foo().table_create()
+    Foo.objects.all().delete()
 
     Foo(name='foo1').save()
     Foo(name='foo2').save()
     Foo(name='foo3').save()
-
-def tearDown():
-    try:
-        disconnect(DB_NAME)
-    except ConnectionError:
-        pass
 
 
 class SliceTestCase(unittest.TestCase):

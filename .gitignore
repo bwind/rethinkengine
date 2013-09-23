@@ -4,3 +4,4 @@ env
 build
 rethinkengine.egg-info
 .coverage
+docs/_build

@@ -85,3 +85,22 @@ class DictFieldTestCase(unittest.TestCase):
     def test_wrong_type(self):
         f = DictField()
         self.assertFalse(f.is_valid('foo'))
+
+
+class BooleanFieldTestCase(unittest.TestCase):
+    def test_default(self):
+        f = BooleanField()
+        self.assertEqual(f._default, None)
+
+    def test_is_valid(self):
+        f = BooleanField()
+        self.assertTrue(f.is_valid(False))
+        self.assertTrue(f.is_valid(True))
+
+    def test_none(self):
+        f = BooleanField()
+        self.assertFalse(f.is_valid(None))
+
+    def test_wrong_type(self):
+        f = BooleanField()
+        self.assertFalse(f.is_valid('foo'))

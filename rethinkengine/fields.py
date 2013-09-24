@@ -50,3 +50,12 @@ class DictField(BaseField):
 
     def is_valid(self, value):
         return isinstance(value, dict)
+
+
+class BooleanField(BaseField):
+    def __init__(self):
+        super(BooleanField, self).__init__()
+        self._default = None
+
+    def is_valid(self, value):
+        return isinstance(value, bool)

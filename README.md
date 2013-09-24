@@ -24,7 +24,7 @@ Defining Documents
     from rethinkengine import *
 
     class User(Document):
-        name = TextField()
+        name = StringField()
         colors = ListField()
 
     # Create the table

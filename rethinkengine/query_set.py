@@ -135,11 +135,21 @@ class QuerySet(object):
             return doc1
         raise MultipleDocumentsReturned
 
-    def get_or_create(self):
-        pass
+    def get_or_create(self, **kwargs):
+        # Shorthand function for either getting a document, and if it doesn't
+        # exist, creating it.
+        try:
+            doc = self._document.objects.get(**kwargs)
+            created = False
+        except DoesNotExist:
+            doc = self.create(**kwargs)
+            created = True
+        return created, doc
 
-    def create(self):
-        pass
+    def create(self, **kwargs):
+        doc = self._document(**kwargs)
+        doc.save()
+        return doc
 
     def __len__(self):
         if not self._cursor_obj:

@@ -43,7 +43,13 @@ class QuerySet(object):
 
         order_by = self._order_by or self._document.Meta.order_by
         if order_by:
-            self._cursor_obj = self._cursor_obj.order_by(*order_by)
+            order_by_r = []
+            for field in order_by:
+                if field.startswith('-'):
+                    order_by_r.append(r.desc(field[1:]))
+                else:
+                    order_by_r.append(r.asc(field))
+            self._cursor_obj = self._cursor_obj.order_by(*order_by_r)
 
         if self._limit:
             self._cursor_obj = self._cursor_obj.limit(self._limit)

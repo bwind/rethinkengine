@@ -34,6 +34,15 @@ class IntegerField(BaseField):
         return isinstance(value, (int, long))
 
 
+class FloatField(BaseField):
+    def __init__(self):
+        super(FloatField, self).__init__()
+        self._default = 0.
+
+    def is_valid(self, value):
+        return isinstance(value, (float))
+
+
 class ListField(BaseField):
     def __init__(self):
         super(ListField, self).__init__()

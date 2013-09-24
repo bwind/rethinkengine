@@ -58,6 +58,21 @@ class IntegerFieldTestCase(unittest.TestCase):
         self.assertFalse(f.is_valid('foo'))
 
 
+class FloatFieldTestCase(unittest.TestCase):
+    def test_default(self):
+        f = FloatField()
+        self.assertEqual(f._default, 0.)
+
+    def test_is_valid(self):
+        f = FloatField()
+        self.assertTrue(f.is_valid(123.456))
+
+    def test_wrong_type(self):
+        f = FloatField()
+        self.assertFalse(f.is_valid('foo'))
+        self.assertFalse(f.is_valid(0))
+
+
 class ListFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = ListField()

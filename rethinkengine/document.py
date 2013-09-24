@@ -46,7 +46,7 @@ class Document(object):
     def __getattr__(self, key):
         field = self._fields.get(key)
         if field:
-            return self._data.get(key, self._fields[key]._default)
+            return self._get_value(key)
         raise AttributeError
 
     def __str__(self):
@@ -64,8 +64,7 @@ class Document(object):
         return '<%s object>' % self.__class__.__name__
 
     def items(self):
-        return dict([(k, self._data.get(k, self._fields[k]._default)) for k in
-            self._fields])
+        return dict([(k, self._get_value(k)) for k in self._fields])
 
     def table_create(self):
         return r.table_create(self._table_name()).run(get_conn())
@@ -109,7 +108,7 @@ class Document(object):
         doc = {}
         for name in self._fields:
             key = self.Meta.primary_key_field if name == 'pk' else name
-            value = self._data.get(name, self._fields[name]._default)
+            value = self._get_value(name)
             if key == self.Meta.primary_key_field and value is None:
                 continue
             doc[key] = value

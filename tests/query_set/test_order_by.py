@@ -11,6 +11,9 @@ class OrderByTestCase(unittest.TestCase):
         Foo(name='Jack', number=10).save()
         Foo(name='Jill', number=15).save()
 
+    def tearDown(self):
+        Foo.objects.delete()
+
     def test_order_by_int(self):
         result = [f.number for f in Foo.objects.all().order_by('number')]
         self.assertEqual(result, [5, 10, 15])

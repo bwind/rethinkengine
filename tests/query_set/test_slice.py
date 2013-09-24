@@ -34,3 +34,12 @@ class SliceTestCase(unittest.TestCase):
 
     def test_all(self):
         self.assertEqual(len(Foo.objects.all()[:]), 3)
+
+    def test_order(self):
+        self.assertEqual(Foo.objects.order_by('name')[0].name, 'foo1')
+        self.assertEqual(Foo.objects.order_by('name')[1].name, 'foo2')
+        self.assertEqual(Foo.objects.order_by('name')[2].name, 'foo3')
+
+    def test_invalid(self):
+        with self.assertRaises(TypeError):
+            Foo.objects.all()['foo']

@@ -24,6 +24,7 @@ class QuerySet(object):
         self._document = document
         self._filter = {}
         self._limit = None
+        self._skip = None
         self._count = False
         self._order_by = None
         self._cursor_obj = None
@@ -54,12 +55,11 @@ class QuerySet(object):
         if self._limit:
             self._cursor_obj = self._cursor_obj.limit(self._limit)
 
+        if self._skip:
+            self._cursor_obj = self._cursor_obj.skip(self._skip)
+
         self._iter_index = 0
         self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
-
-    def __get__(self, instance, owner):
-        self._document = owner
-        return self
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -71,7 +71,7 @@ class QuerySet(object):
                 raise AssertionError('Negative indexing is not supported')
             if key >= len(self):
                 raise IndexError('List index out of range')
-            for i in xrange(self._iter_index - key):
+            for i in xrange(key - self._iter_index):
                 self.next()
             doc = self.next()
             return doc
@@ -117,7 +117,7 @@ class QuerySet(object):
             if k in self._filter:
                 raise InvalidQueryError("Encountered '%s' more than once in query" % k)
             self._filter[k] = v
-        return self
+        return self.__call__()
 
     def exclude(self):
         pass
@@ -146,15 +146,17 @@ class QuerySet(object):
             self._build_cursor_obj()
         return self._cursor_obj.count().run(get_conn())
 
-    def limit(self):
-        pass
+    def limit(self, limit):
+        self._limit = limit
+        return self.__call__()
 
-    def skip(self):
-        pass
+    def skip(self, skip):
+        self._skip = skip
+        return self.__call__()
 
     def order_by(self, *order_by):
         self._order_by = order_by
-        return self
+        return self.__call__()
 
     def delete(self):
         self._build_cursor_obj()

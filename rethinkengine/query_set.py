@@ -112,8 +112,8 @@ class QuerySet(object):
     def all(self):
         return self.__call__()
 
-    def filter(self, **query):
-        for k, v in query.items():
+    def filter(self, **kwargs):
+        for k, v in kwargs.items():
             if k in self._filter:
                 raise InvalidQueryError("Encountered '%s' more than once in query" % k)
             self._filter[k] = v
@@ -122,8 +122,8 @@ class QuerySet(object):
     def exclude(self):
         pass
 
-    def get(self, **query):
-        self.filter(**query)
+    def get(self, **kwargs):
+        self.filter(**kwargs)
         self._limit = 2
         try:
             doc1 = self.next()
@@ -164,8 +164,8 @@ class QuerySet(object):
         self._skip = skip
         return self.__call__()
 
-    def order_by(self, *order_by):
-        self._order_by = order_by
+    def order_by(self, *args):
+        self._order_by = args
         return self.__call__()
 
     def delete(self):

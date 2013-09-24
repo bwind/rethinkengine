@@ -63,8 +63,8 @@ class QuerySet(object):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            # Get the start, stop, and step from the slice
             self._build_cursor_obj()
+            # Get the start, stop, and step from the slice
             return [self[i] for i in xrange(*key.indices(len(self)))]
         elif isinstance(key, int):
             if key < 0:

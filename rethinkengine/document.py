@@ -93,7 +93,6 @@ class Document(object):
             result = table.get(self.pk).update(doc).run(get_conn())
         else:
             result = table.insert(doc).run(get_conn())
-        print result
         self._dirty = False
         if 'generated_keys' in result:
             self._data['pk'] = result['generated_keys'][0]

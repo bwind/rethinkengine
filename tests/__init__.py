@@ -10,7 +10,7 @@ DB_NAME = 'test'
 
 
 class Foo(Document):
-    name = TextField()
+    name = StringField()
     number = IntegerField()
 
 

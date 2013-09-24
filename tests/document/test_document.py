@@ -59,3 +59,17 @@ class DocumentTestCase(unittest.TestCase):
         f = Foo.objects.get(name='John')
         result = f.save()
         self.assertTrue(result)
+
+    def test_save_and_update(self):
+        # Insert a new document and save its pk
+        f = Foo(name='John')
+        f.save()
+        pk = f.pk
+
+        # Update the doc
+        f.name = 'Jack'
+        f.save()
+
+        # Retrieve doc and make sure pks are equal
+        f = Foo.objects.get(name='Jack')
+        self.assertEqual(f.pk, pk)

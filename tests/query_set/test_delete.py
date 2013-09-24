@@ -1,7 +1,5 @@
 from .. import Foo, DB_NAME
 from rethinkengine.connection import connect, disconnect, ConnectionError
-from rethinkengine.document import Document
-from rethinkengine.fields import TextField
 
 import unittest2 as unittest
 import rethinkdb as r

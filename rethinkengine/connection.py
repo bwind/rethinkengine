@@ -4,7 +4,8 @@ import rethinkdb as r
 DEFAULT_DATABASE_NAME = 'default'
 
 
-get_alias = lambda d: d or ConnectionManager._active_alias or DEFAULT_DATABASE_NAME
+get_alias = lambda d: d or ConnectionManager._active_alias or \
+    DEFAULT_DATABASE_NAME
 
 
 class ConnectionError(Exception):

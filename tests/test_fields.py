@@ -29,18 +29,18 @@ class PrimaryKeyFieldTestCase(unittest.TestCase):
         self.assertFalse(f.is_valid(123))
 
 
-class TextFieldTestCase(unittest.TestCase):
+class StringFieldTestCase(unittest.TestCase):
     def test_default(self):
-        f = TextField()
+        f = StringField()
         self.assertEqual(f._default, '')
 
     def test_is_valid(self):
-        f = TextField()
+        f = StringField()
         self.assertTrue(f.is_valid('foo'))
         self.assertTrue(f.is_valid(''))
 
     def test_wrong_type(self):
-        f = TextField()
+        f = StringField()
         self.assertFalse(f.is_valid(123))
 
 

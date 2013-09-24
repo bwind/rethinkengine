@@ -16,9 +16,9 @@ class PrimaryKeyField(BaseField):
         return isinstance(value, basestring) and bool(re.match(self.rx, value))
 
 
-class TextField(BaseField):
+class StringField(BaseField):
     def __init__(self):
-        super(TextField, self).__init__()
+        super(StringField, self).__init__()
         self._default = ''
 
     def is_valid(self, value):

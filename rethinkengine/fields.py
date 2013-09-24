@@ -1,3 +1,6 @@
+import re
+
+
 class BaseField(object):
     def __init__(self):
         # TODO: add 'required' keyword
@@ -6,13 +9,11 @@ class BaseField(object):
     def __repr__(self):
         return '<%s object>' % self.__class__.__name__
 
-    def to_python(self, value):
-        return value
-
 
 class PrimaryKeyField(BaseField):
+    rx = r'^[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}$'
     def is_valid(self, value):
-        return isinstance(value, basestring)
+        return isinstance(value, basestring) and bool(re.match(self.rx, value))
 
 
 class TextField(BaseField):
@@ -37,9 +38,6 @@ class ListField(BaseField):
     def __init__(self):
         super(ListField, self).__init__()
         self._default = []
-
-    def to_python(self, value):
-        return value
 
     def is_valid(self, value):
         return isinstance(value, (list, tuple))

@@ -34,6 +34,12 @@ class StringFieldTestCase(unittest.TestCase):
         f = StringField()
         self.assertEqual(f._default, '')
 
+    def test_none(self):
+        f = StringField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = StringField(required=True)
+        self.assertFalse(f.is_valid(None))
+
     def test_is_valid(self):
         f = StringField()
         self.assertTrue(f.is_valid('foo'))
@@ -49,6 +55,12 @@ class IntegerFieldTestCase(unittest.TestCase):
         f = IntegerField()
         self.assertEqual(f._default, 0)
 
+    def test_none(self):
+        f = IntegerField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = IntegerField(required=True)
+        self.assertFalse(f.is_valid(None))
+
     def test_is_valid(self):
         f = IntegerField()
         self.assertTrue(f.is_valid(123))
@@ -62,6 +74,12 @@ class FloatFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = FloatField()
         self.assertEqual(f._default, 0.)
+
+    def test_none(self):
+        f = FloatField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = FloatField(required=True)
+        self.assertFalse(f.is_valid(None))
 
     def test_is_valid(self):
         f = FloatField()
@@ -78,6 +96,12 @@ class ListFieldTestCase(unittest.TestCase):
         f = ListField()
         self.assertEqual(f._default, [])
 
+    def test_none(self):
+        f = ListField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = ListField(required=True)
+        self.assertFalse(f.is_valid(None))
+
     def test_is_valid(self):
         f = ListField()
         self.assertTrue(f.is_valid([1, 2, 3]))
@@ -91,6 +115,12 @@ class DictFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = DictField()
         self.assertEqual(f._default, {})
+
+    def test_none(self):
+        f = DictField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = DictField(required=True)
+        self.assertFalse(f.is_valid(None))
 
     def test_is_valid(self):
         f = DictField()
@@ -107,14 +137,16 @@ class BooleanFieldTestCase(unittest.TestCase):
         f = BooleanField()
         self.assertEqual(f._default, None)
 
+    def test_none(self):
+        f = BooleanField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = BooleanField(required=True)
+        self.assertFalse(f.is_valid(None))
+
     def test_is_valid(self):
         f = BooleanField()
         self.assertTrue(f.is_valid(False))
         self.assertTrue(f.is_valid(True))
-
-    def test_none(self):
-        f = BooleanField()
-        self.assertFalse(f.is_valid(None))
 
     def test_wrong_type(self):
         f = BooleanField()

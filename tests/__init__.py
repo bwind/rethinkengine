@@ -17,7 +17,7 @@ class Foo(Document):
 def setUp():
     connect(DB_NAME)
     try:
-        Foo().table_create()
+        Foo.table_create()
     except r.RqlRuntimeError:
         pass
 

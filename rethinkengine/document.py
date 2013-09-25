@@ -16,6 +16,11 @@ class ValidationError(Exception):
     pass
 
 
+class Meta(object):
+    order_by = None
+    primary_key_field = 'id'
+
+
 class BaseDocument(type):
     def __new__(cls, name, bases, attrs):
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
@@ -33,10 +38,12 @@ class BaseDocument(type):
         new_class.objects = QuerySetManager()
 
         # Merge exceptions
-        classes_to_merge = (DoesNotExist, MultipleObjectsReturned)
+        classes_to_merge = (DoesNotExist, MultipleObjectsReturned, Meta)
         for c in classes_to_merge:
             exc = type(c.__name__, (c,), {'__module__': new_class.__name__})
             setattr(new_class, c.__name__, exc)
+
+        new_class.Meta.table_name = new_class.__name__.lower()
 
         return new_class
 
@@ -84,10 +91,10 @@ class Document(object):
         return dict([(k, self._get_value(k)) for k in self._fields])
 
     def table_create(self):
-        return r.table_create(self._table_name()).run(get_conn())
+        return r.table_create(self.Meta.table_name).run(get_conn())
 
     def table_drop(self):
-        return r.table_drop(self._table_name()).run(get_conn())
+        return r.table_drop(self.Meta.table_name).run(get_conn())
 
     def validate(self):
         data = [(field, getattr(self, name)) for name, field in
@@ -104,7 +111,7 @@ class Document(object):
             return True
         self.validate()
         doc = self._doc
-        table = r.table(self._table_name())
+        table = r.table(self.Meta.table_name)
         if self.pk:
             # TODO: implement atomic updates instead of updating entire doc
             result = table.get(self.pk).update(doc).run(get_conn())
@@ -116,7 +123,7 @@ class Document(object):
         return True
 
     def delete(self):
-        table = r.table(self._table_name())
+        table = r.table(self.Meta.table_name)
         if self._get_value('pk'):
             return table.get(self._get_value('pk')).delete().run(get_conn())
 
@@ -133,10 +140,6 @@ class Document(object):
                 continue
             doc[key] = value
         return doc
-
-    @classmethod
-    def _table_name(cls):
-        return cls.__name__.lower()
 
     class Meta:
         order_by = None

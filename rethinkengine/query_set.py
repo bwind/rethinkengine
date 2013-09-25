@@ -38,7 +38,7 @@ class QuerySet(object):
         return self._cursor_iter
 
     def _build_cursor_obj(self):
-        self._cursor_obj = r.table(self._document._table_name())
+        self._cursor_obj = r.table(self._document.Meta.table_name)
         if self._filter:
             self._cursor_obj = self._cursor_obj.filter(self._filter)
 

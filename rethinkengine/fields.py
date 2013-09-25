@@ -2,7 +2,10 @@ import re
 
 
 class BaseField(object):
+    _creation_counter = 0
     def __init__(self, required=True):
+        self._creation_order = self._creation_counter
+        BaseField._creation_counter += 1
         self._required = required
         self._default = None
 

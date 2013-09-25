@@ -1,8 +1,14 @@
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+
 from rethinkengine.connection import get_conn
 from rethinkengine.fields import BaseField, PrimaryKeyField
 from rethinkengine.query_set import QuerySet, QuerySetManager, DoesNotExist, \
     MultipleDocumentsReturned
 
+import inspect
 import rethinkdb as r
 
 
@@ -12,14 +18,18 @@ class ValidationError(Exception):
 
 class BaseDocument(type):
     def __new__(cls, name, bases, attrs):
-        attrs['_fields'] = attrs.get('_fields', {})
-        for field_name, field in attrs.items():
-            if not isinstance(field, BaseField):
-                continue
-            attrs['_fields'][field_name] = field
-            del attrs[field_name]
-        attrs['_fields']['pk'] = PrimaryKeyField()
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
+        fields = sorted(
+            inspect.getmembers(
+                new_class,
+                lambda o:isinstance(o, BaseField)
+            ),
+            key=lambda i:i[1]._creation_order)
+        new_class._fields = attrs.get('_fields', OrderedDict())
+        new_class._fields['pk'] = PrimaryKeyField()
+        for field_name, field in fields:
+            new_class._fields[field_name] = field
+            delattr(new_class, field_name)
         new_class.objects = QuerySetManager()
         return new_class
 

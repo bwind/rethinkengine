@@ -73,3 +73,8 @@ class DocumentTestCase(unittest.TestCase):
         # Retrieve doc and make sure pks are equal
         f = Foo.objects.get(name='Jack')
         self.assertEqual(f.pk, pk)
+
+    def test_table_name(self):
+        class Test_TABLE_123(Document):
+            pass
+        self.assertEqual(Test_TABLE_123.Meta.table_name, 'test_table_123')

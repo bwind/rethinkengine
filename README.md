@@ -18,6 +18,8 @@ Connecting to RethinkDB
     from rethinkengine import connect
     connect('dbname')
 
+If `dbname` doesn't exist, it will be created for you.
+
 Defining Documents
 ------------------
 

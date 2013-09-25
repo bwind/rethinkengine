@@ -1,9 +1,6 @@
 import os
 from setuptools import setup
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 setup(
     name='rethinkengine',
     version='0.1.0',
@@ -16,7 +13,7 @@ setup(
     download_url='https://pypi.python.org/pypi/Propeller',
     packages=['rethinkengine'],
     include_package_data=True,
-    long_description=read('README.md'),
+    long_description=open('README.md').read(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -26,5 +23,6 @@ setup(
     ],
     install_requires=[
         'rethinkdb==1.9.0-0',
+        'ordereddict==1.1',
     ],
 )

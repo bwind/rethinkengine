@@ -43,3 +43,9 @@ class SliceTestCase(unittest.TestCase):
     def test_invalid(self):
         with self.assertRaises(TypeError):
             Foo.objects.all()['foo']
+
+    def test_index_after_iter(self):
+        f = Foo.objects.order_by('name')
+        f.next()
+        # [0] should still refer to the first element
+        self.assertEqual(f[0].name, 'foo1')

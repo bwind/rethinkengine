@@ -67,11 +67,12 @@ class QuerySet(object):
             # Get the start, stop, and step from the slice
             return [self[i] for i in xrange(*key.indices(len(self)))]
         elif isinstance(key, int):
+            self._build_cursor_obj()
             if key < 0:
                 raise AssertionError('Negative indexing is not supported')
             if key >= len(self):
                 raise IndexError('List index out of range')
-            for i in xrange(key - self._iter_index):
+            for i in xrange(key):
                 self.next()
             doc = self.next()
             return doc

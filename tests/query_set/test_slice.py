@@ -32,6 +32,11 @@ class SliceTestCase(unittest.TestCase):
     def test_len(self):
         self.assertEqual(len(Foo.objects.all()), 3)
 
+    def test_len_after_iter(self):
+        f = Foo.objects.all()
+        f.next()
+        self.assertEqual(len(f), 3)
+
     def test_all(self):
         self.assertEqual(len(Foo.objects.all()[:]), 3)
 

@@ -6,7 +6,7 @@ except ImportError:
 from rethinkengine.connection import get_conn
 from rethinkengine.fields import BaseField, PrimaryKeyField
 from rethinkengine.query_set import QuerySet, QuerySetManager, DoesNotExist, \
-    MultipleDocumentsReturned
+    MultipleObjectsReturned
 
 import inspect
 import rethinkdb as r
@@ -31,6 +31,13 @@ class BaseDocument(type):
             new_class._fields[field_name] = field
             delattr(new_class, field_name)
         new_class.objects = QuerySetManager()
+
+        # Merge exceptions
+        classes_to_merge = (DoesNotExist, MultipleObjectsReturned)
+        for c in classes_to_merge:
+            exc = type(c.__name__, (c,), {'__module__': new_class.__name__})
+            setattr(new_class, c.__name__, exc)
+
         return new_class
 
 

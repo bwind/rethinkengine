@@ -11,7 +11,7 @@ class InvalidQueryError(Exception):
     pass
 
 
-class MultipleDocumentsReturned(Exception):
+class MultipleObjectsReturned(Exception):
     pass
 
 
@@ -115,12 +115,10 @@ class QuerySet(object):
     def filter(self, **kwargs):
         for k, v in kwargs.items():
             if k in self._filter:
-                raise InvalidQueryError("Encountered '%s' more than once in query" % k)
+                message = "Encountered '%s' more than once in query" % k
+                raise InvalidQueryError(message)
             self._filter[k] = v
         return self.__call__()
-
-    def exclude(self):
-        pass
 
     def get(self, **kwargs):
         self.filter(**kwargs)
@@ -128,12 +126,16 @@ class QuerySet(object):
         try:
             doc1 = self.next()
         except StopIteration:
-            raise DoesNotExist
+            message = 'Query did not match any %s objects.' % \
+                self._document.__name__
+            raise self._document.DoesNotExist(message)
         try:
             doc2 = self.next()
         except StopIteration:
             return doc1
-        raise MultipleDocumentsReturned
+        message = 'Query returned more than 1 %s object.' % \
+            self._document.__name__
+        raise self._document.MultipleObjectsReturned(message)
 
     def get_or_create(self, **kwargs):
         # Shorthand function for either getting a document, and if it doesn't
@@ -172,9 +174,6 @@ class QuerySet(object):
         self._build_cursor_obj()
         for doc in self:
             doc.delete()
-
-    def update(self):
-        pass
 
 
 class QuerySetManager(object):

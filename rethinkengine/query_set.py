@@ -118,6 +118,8 @@ class QuerySet(object):
             if k in self._filter:
                 message = "Encountered '%s' more than once in query" % k
                 raise InvalidQueryError(message)
+            elif k == 'pk':
+                k = self._document.Meta.primary_key_field
             self._filter[k] = v
         return self.__call__()
 

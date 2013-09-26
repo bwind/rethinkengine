@@ -38,12 +38,23 @@ class BaseDocument(type):
         new_class.objects = QuerySetManager()
 
         # Merge exceptions
-        classes_to_merge = (DoesNotExist, MultipleObjectsReturned, Meta)
+        classes_to_merge = (DoesNotExist, MultipleObjectsReturned)
         for c in classes_to_merge:
             exc = type(c.__name__, (c,), {'__module__': new_class.__name__})
             setattr(new_class, c.__name__, exc)
 
-        new_class.Meta.table_name = new_class.__name__.lower()
+        # Merge Meta
+        m_name = Meta.__name__
+        meta = type(m_name, (Meta,), {'__module__': new_class.__name__})
+        # Default table_name
+        meta.table_name = new_class.__name__.lower()
+        # Overwrite Meta defaults
+        if hasattr(new_class, m_name):
+            for var in dir(new_class.Meta):
+                if var.startswith('_'):
+                    continue
+                setattr(meta, var, getattr(new_class.Meta, var))
+        setattr(new_class, m_name, meta)
 
         return new_class
 
@@ -92,7 +103,8 @@ class Document(object):
 
     @classmethod
     def table_create(cls):
-        return r.table_create(cls.Meta.table_name).run(get_conn())
+        return r.table_create(cls.Meta.table_name,
+            primary_key=cls.Meta.primary_key_field).run(get_conn())
 
     @classmethod
     def table_drop(cls):

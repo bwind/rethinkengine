@@ -13,7 +13,7 @@ setup(
     download_url='https://pypi.python.org/pypi/Propeller',
     packages=['rethinkengine'],
     include_package_data=True,
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

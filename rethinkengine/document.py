@@ -24,6 +24,12 @@ class Meta(object):
 class BaseDocument(type):
     def __new__(cls, name, bases, attrs):
         new_class = super(BaseDocument, cls).__new__(cls, name, bases, attrs)
+
+        # If new_class is of type Document, return straight away
+        if object in new_class.__bases__:
+            return new_class
+
+        # Process schema
         fields = sorted(
             inspect.getmembers(
                 new_class,
@@ -40,21 +46,27 @@ class BaseDocument(type):
         # Merge exceptions
         classes_to_merge = (DoesNotExist, MultipleObjectsReturned)
         for c in classes_to_merge:
-            exc = type(c.__name__, (c,), {'__module__': new_class.__name__})
+            exc = type(c.__name__, (c,), {'__module__': name})
             setattr(new_class, c.__name__, exc)
 
         # Merge Meta
         m_name = Meta.__name__
-        meta = type(m_name, (Meta,), {'__module__': new_class.__name__})
-        # Default table_name
-        meta.table_name = new_class.__name__.lower()
-        # Overwrite Meta defaults
+
+        # Get user defined Meta data
+        meta_data = {}
         if hasattr(new_class, m_name):
-            for var in dir(new_class.Meta):
-                if var.startswith('_'):
-                    continue
-                setattr(meta, var, getattr(new_class.Meta, var))
+            meta_data = dict([(k, getattr(new_class.Meta, k)) for k in
+                dir(new_class.Meta) if not k.startswith('_')])
+
+        # Merge Meta class and set user defined data
+        meta = type(m_name, (Meta,), {'__module__': name})
         setattr(new_class, m_name, meta)
+        for k, v in meta_data.items():
+            setattr(new_class.Meta, k, v)
+
+        # Populate table_name if not privided
+        if 'table_name' not in meta_data:
+            new_class.Meta.table_name = name.lower()
 
         return new_class
 

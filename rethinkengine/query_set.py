@@ -129,14 +129,14 @@ class QuerySet(object):
         try:
             doc1 = self.next()
         except StopIteration:
-            message = 'Query did not match any %s objects.' % \
+            message = 'Query did not match any %s objects' % \
                 self._document.__name__
             raise self._document.DoesNotExist(message)
         try:
             doc2 = self.next()
         except StopIteration:
             return doc1
-        message = 'Query returned more than 1 %s object.' % \
+        message = 'Query returned more than 1 %s object' % \
             self._document.__name__
         raise self._document.MultipleObjectsReturned(message)
 

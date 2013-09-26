@@ -30,7 +30,7 @@ Defining Documents
         colors = ListField()
 
     # Create the table
-    User().table_create()
+    User.table_create()
 
 Storing data
 ------------

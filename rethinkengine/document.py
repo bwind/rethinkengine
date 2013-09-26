@@ -18,6 +18,7 @@ class ValidationError(Exception):
 
 class Meta(object):
     order_by = None
+    primary_key_field = 'id'
 
 
 class BaseDocument(type):
@@ -49,7 +50,6 @@ class BaseDocument(type):
 
 class Document(object):
     __metaclass__ = BaseDocument
-    _primary_key_field = 'id'
 
     def __init__(self, *args, **kwargs):
         super(Document, self).__init__()
@@ -136,9 +136,9 @@ class Document(object):
     def _doc(self):
         doc = {}
         for name in self._fields:
-            key = self._primary_key_field if name == 'pk' else name
+            key = self.Meta.primary_key_field if name == 'pk' else name
             value = self._get_value(name)
-            if key == self._primary_key_field and value is None:
+            if key == self.Meta.primary_key_field and value is None:
                 continue
             doc[key] = value
         return doc

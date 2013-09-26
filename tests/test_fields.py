@@ -8,6 +8,13 @@ class PrimaryKeyFieldTestCase(unittest.TestCase):
         f = PrimaryKeyField()
         self.assertEqual(f._default, None)
 
+        with self.assertRaises(TypeError):
+            PrimaryKeyField(default='')
+
+    def test_required(self):
+        with self.assertRaises(TypeError):
+            PrimaryKeyField(required=False)
+
     def test_is_valid(self):
         f = PrimaryKeyField()
         self.assertTrue(f.is_valid('cdc14784-3327-492b-a1db-ad8a3b8abcef'))
@@ -32,7 +39,10 @@ class PrimaryKeyFieldTestCase(unittest.TestCase):
 class StringFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = StringField()
-        self.assertEqual(f._default, '')
+        self.assertEqual(f._default, None)
+
+        f = StringField(default='foo')
+        self.assertEqual(f._default, 'foo')
 
     def test_none(self):
         f = StringField(required=False)
@@ -53,7 +63,10 @@ class StringFieldTestCase(unittest.TestCase):
 class IntegerFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = IntegerField()
-        self.assertEqual(f._default, 0)
+        self.assertEqual(f._default, None)
+
+        f = IntegerField(default=42)
+        self.assertEqual(f._default, 42)
 
     def test_none(self):
         f = IntegerField(required=False)
@@ -73,7 +86,10 @@ class IntegerFieldTestCase(unittest.TestCase):
 class FloatFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = FloatField()
-        self.assertEqual(f._default, 0.)
+        self.assertEqual(f._default, None)
+
+        f = FloatField(default=4.2)
+        self.assertEqual(f._default, 4.2)
 
     def test_none(self):
         f = FloatField(required=False)
@@ -94,7 +110,10 @@ class FloatFieldTestCase(unittest.TestCase):
 class ListFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = ListField()
-        self.assertEqual(f._default, [])
+        self.assertEqual(f._default, None)
+
+        f = ListField(default=[1, 2, 3])
+        self.assertEqual(f._default, [1, 2, 3])
 
     def test_none(self):
         f = ListField(required=False)
@@ -114,7 +133,10 @@ class ListFieldTestCase(unittest.TestCase):
 class DictFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = DictField()
-        self.assertEqual(f._default, {})
+        self.assertEqual(f._default, None)
+
+        f = DictField(default={'foo': 'bar'})
+        self.assertEqual(f._default, {'foo': 'bar'})
 
     def test_none(self):
         f = DictField(required=False)
@@ -136,6 +158,9 @@ class BooleanFieldTestCase(unittest.TestCase):
     def test_default(self):
         f = BooleanField()
         self.assertEqual(f._default, None)
+
+        f = BooleanField(default=True)
+        self.assertEqual(f._default, True)
 
     def test_none(self):
         f = BooleanField(required=False)

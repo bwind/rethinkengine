@@ -10,8 +10,8 @@ DB_NAME = 'test'
 
 
 class Foo(Document):
-    name = StringField()
-    number = IntegerField()
+    name = StringField(required=False)
+    number = IntegerField(required=False)
 
 
 def setUp():

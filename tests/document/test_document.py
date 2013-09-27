@@ -34,7 +34,7 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(f.next(), 'number')
 
     def test_items(self):
-        items = Foo(name='foo', number=42).items()
+        items = dict(Foo(name='foo', number=42).items())
         del items['pk']
         self.assertEqual(items, {'name': 'foo', 'number': 42})
 

@@ -111,7 +111,7 @@ class Document(object):
         return '<%s object>' % self.__class__.__name__
 
     def items(self):
-        return dict([(k, self._get_value(k)) for k in self._fields])
+        return [(k, self._get_value(k)) for k in self._fields]
 
     @classmethod
     def table_create(cls):

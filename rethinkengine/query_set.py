@@ -170,7 +170,10 @@ class QuerySet(object):
         return self.__call__()
 
     def order_by(self, *args):
-        self._order_by = args
+        # Replace -pk and pk with actual primary key field
+        self._order_by = tuple([a.replace(a.lstrip('-'),
+            self._document.Meta.primary_key_field) if a in ('pk', '-pk') else
+            a for a in args])
         return self.__call__()
 
     def delete(self):

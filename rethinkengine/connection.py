@@ -15,7 +15,7 @@ class ConnectionError(Exception):
 get_alias = lambda d: d or _active_alias or DEFAULT_DATABASE_NAME
 
 
-def connect(db=None, alias=None, host='localhost', port=28015):
+def connect(db=None, alias=None, host='localhost', port=28015, auth_key=''):
     global _connections
     global _active_alias
     # No value for 'db' means _active_alias (last used), or default.
@@ -24,7 +24,8 @@ def connect(db=None, alias=None, host='localhost', port=28015):
     alias = alias or db
     if alias not in _connections:
         try:
-            _connections[alias] = r.connect(host=host, db=db, port=port)
+            _connections[alias] = r.connect(host=host, db=db, port=port,
+                                            auth_key=auth_key)
         except r.RqlDriverError:
             raise ConnectionError('Could not connect to %s:%d/%s' %
                 (host, port, db))

@@ -63,7 +63,8 @@ Retrieving data
         print u.name, u.colors
 
     for u in User.objects.all().order_by('name'):
-        print u.name, u.colors
+        for field, value in u.items():
+            print field, value
 
 .. |Build Status| image:: https://travis-ci.org/bwind/rethinkengine.png?branch=master
    :target: https://travis-ci.org/bwind/rethinkengine

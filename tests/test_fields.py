@@ -129,6 +129,9 @@ class ListFieldTestCase(unittest.TestCase):
         f = ListField()
         self.assertFalse(f.is_valid('foo'))
 
+    def test_element_type(self):
+        f = ListField(StringField)
+        self.assertEqual(f._element_type, StringField)
 
 class DictFieldTestCase(unittest.TestCase):
     def test_default(self):

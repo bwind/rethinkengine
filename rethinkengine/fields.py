@@ -51,6 +51,12 @@ class FloatField(BaseField):
 
 
 class ListField(BaseField):
+    _element_type = None
+
+    def __init__(self, element_type=None, **kwargs):
+        super(ListField, self).__init__(**kwargs)
+        self._element_type = element_type
+
     def is_valid(self, value):
         if super(ListField, self).is_valid(value) is True:
             return True

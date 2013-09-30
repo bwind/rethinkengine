@@ -55,12 +55,23 @@ class ListField(BaseField):
 
     def __init__(self, element_type=None, **kwargs):
         super(ListField, self).__init__(**kwargs)
-        self._element_type = element_type
+        if element_type:
+            if issubclass(element_type, BaseField):
+                self._element_type = element_type
+            else:
+                raise TypeError('element_type must be instance of BaseField')
 
     def is_valid(self, value):
         if super(ListField, self).is_valid(value) is True:
             return True
-        return isinstance(value, (list, tuple))
+        valid = isinstance(value, (list, tuple))
+        if not valid:
+            return False
+        if self._element_type:
+            for elem in value:
+                if not self._element_type().is_valid(elem):
+                    return False
+        return True
 
 
 class DictField(BaseField):

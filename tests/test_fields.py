@@ -125,13 +125,30 @@ class ListFieldTestCase(unittest.TestCase):
         f = ListField()
         self.assertTrue(f.is_valid([1, 2, 3]))
 
+    def test_is_valid_tuple(self):
+        f = ListField()
+        self.assertTrue(f.is_valid((1, 2, 3)))
+
     def test_wrong_type(self):
         f = ListField()
         self.assertFalse(f.is_valid('foo'))
 
-    def test_element_type(self):
+    def test_element_type_string(self):
         f = ListField(StringField)
         self.assertEqual(f._element_type, StringField)
+
+    def test_element_type_invalid(self):
+        with self.assertRaises(TypeError):
+            f = ListField(str)
+
+    def test_element_type_is_valid(self):
+        f = ListField(StringField)
+        self.assertTrue(f.is_valid(['foo']))
+
+    def test_element_type_is_invalid(self):
+        f = ListField(StringField)
+        self.assertFalse(f.is_valid([42]))
+
 
 class DictFieldTestCase(unittest.TestCase):
     def test_default(self):

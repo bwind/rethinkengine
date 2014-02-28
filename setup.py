@@ -22,7 +22,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     install_requires=[
-        'rethinkdb==1.9.0-0',
+        'rethinkdb==1.11.0-2',
         'ordereddict==1.1',
     ],
 )

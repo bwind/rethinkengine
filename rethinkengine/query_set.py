@@ -113,7 +113,10 @@ class QuerySet(object):
     def all(self):
         return self.__call__()
 
-    def filter(self, **kwargs):
+    def filter(self, *args, **kwargs):
+        if args and callable(args[0]):
+            self._filter = args[0]
+
         for k, v in kwargs.items():
             if k in self._filter:
                 message = "Encountered '%s' more than once in query" % k

@@ -126,6 +126,12 @@ class QuerySet(object):
             self._filter[k] = v
         return self.__call__()
 
+    def insert(self, batch):
+        self._cursor_obj = r.table(self._document.Meta.table_name)
+        map(lambda i: i.validate(), batch)
+        result = self._cursor_obj.insert(map(lambda i: i._doc, batch)).run(get_conn())
+        return result.get("generated_keys", [])
+
     def get(self, **kwargs):
         self.filter(**kwargs)
         self._limit = 2

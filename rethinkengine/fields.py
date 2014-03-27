@@ -86,3 +86,8 @@ class BooleanField(BaseField):
         if super(BooleanField, self).is_valid(value) is True:
             return True
         return isinstance(value, bool)
+
+
+class DateTimeField(BaseField):
+    def is_valid(self, value):
+        return True

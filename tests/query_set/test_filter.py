@@ -1,4 +1,5 @@
 from .. import Foo
+import rethinkdb as r
 from rethinkengine.query_set import InvalidQueryError
 
 import unittest2 as unittest
@@ -38,3 +39,9 @@ class FilterTestCase(unittest.TestCase):
         self.assertEqual(len(f), 1)
         f = Foo.objects.filter(name='Jane', number=42)
         self.assertEqual(len(f), 0)
+
+    def test_filter_lambda(self):
+        f = Foo.objects.filter(lambda i: i["name"] == 'Jill')
+        self.assertEqual(len(f), 1)
+        f = Foo.objects.filter(lambda i: r.expr(["Jack", "Jill"]).contains(i["name"]))
+        self.assertEqual(len(f), 2)

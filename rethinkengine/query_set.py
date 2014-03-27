@@ -113,7 +113,10 @@ class QuerySet(object):
     def all(self):
         return self.__call__()
 
-    def filter(self, **kwargs):
+    def filter(self, *args, **kwargs):
+        if args and callable(args[0]):
+            self._filter = args[0]
+
         for k, v in kwargs.items():
             if k in self._filter:
                 message = "Encountered '%s' more than once in query" % k
@@ -122,6 +125,12 @@ class QuerySet(object):
                 k = self._document.Meta.primary_key_field
             self._filter[k] = v
         return self.__call__()
+
+    def insert(self, batch):
+        self._cursor_obj = r.table(self._document.Meta.table_name)
+        map(lambda i: i.validate(), batch)
+        result = self._cursor_obj.insert(map(lambda i: i._doc, batch)).run(get_conn())
+        return result.get("generated_keys", [])
 
     def get(self, **kwargs):
         self.filter(**kwargs)

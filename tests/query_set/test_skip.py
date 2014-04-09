@@ -33,6 +33,5 @@ class SkipTestCase(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
     def test_limit_and_skip(self):
-        result = Foo.objects.limit(3).skip(1)
+        result = Foo.objects.skip(3).limit(3)
         self.assertEqual(len(result), 2)
-

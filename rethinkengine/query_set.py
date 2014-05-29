@@ -160,6 +160,15 @@ class QuerySet(object):
             created = True
         return created, doc
 
+    def first(self, **kwargs):
+        self.filter(**kwargs)
+        self._limit = 1
+        try:
+            doc = self.next()
+        except StopIteration:
+            doc = None
+        return doc
+
     def create(self, **kwargs):
         doc = self._document(**kwargs)
         doc.save()

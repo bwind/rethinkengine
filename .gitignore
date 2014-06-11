@@ -7,3 +7,8 @@ rethinkengine.egg-info
 .coverage
 docs/_build
 dist
+bin
+include
+lib
+man
+.python

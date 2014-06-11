@@ -52,11 +52,11 @@ class QuerySet(object):
                     order_by_r.append(r.asc(field))
             self._cursor_obj = self._cursor_obj.order_by(*order_by_r)
 
-        if self._limit:
-            self._cursor_obj = self._cursor_obj.limit(self._limit)
-
         if self._skip:
             self._cursor_obj = self._cursor_obj.skip(self._skip)
+
+        if self._limit:
+            self._cursor_obj = self._cursor_obj.limit(self._limit)
 
         self._iter_index = 0
         self._cursor_iter = iter(self._cursor_obj.run(get_conn()))
@@ -159,6 +159,15 @@ class QuerySet(object):
             doc = self.create(**kwargs)
             created = True
         return created, doc
+
+    def first(self, **kwargs):
+        self.filter(**kwargs)
+        self._limit = 1
+        try:
+            doc = self.next()
+        except StopIteration:
+            doc = None
+        return doc
 
     def create(self, **kwargs):
         doc = self._document(**kwargs)

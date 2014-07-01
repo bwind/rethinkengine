@@ -114,9 +114,17 @@ class Document(object):
         return [(k, self._get_value(k)) for k in self._fields]
 
     @classmethod
-    def table_create(cls):
-        return r.table_create(cls.Meta.table_name,
-            primary_key=cls.Meta.primary_key_field).run(get_conn())
+    def table_create(cls, if_not_exists=True):
+        if (
+            if_not_exists and
+            (cls.Meta.table_name in r.table_list().run(get_conn()))
+        ):
+            return
+
+        return r.table_create(
+            cls.Meta.table_name,
+            primary_key=cls.Meta.primary_key_field
+        ).run(get_conn())
 
     @classmethod
     def table_drop(cls):

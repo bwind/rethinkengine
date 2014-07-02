@@ -1,13 +1,13 @@
-from .. import Foo
-from rethinkengine import *
+from .. import Foo, User
+from rethinkengine import RqlOperationError
 
-import rethinkdb as r
 import unittest2 as unittest
 
 
 class DocumentTestCase(unittest.TestCase):
     def setUp(self):
         Foo.objects.all().delete()
+        User.objects.all().delete()
 
     def test_set_does_not_exist(self):
         # Should not raise an error
@@ -73,3 +73,14 @@ class DocumentTestCase(unittest.TestCase):
         # Retrieve doc and make sure pks are equal
         f = Foo.objects.get(name='Jack')
         self.assertEqual(f.pk, pk)
+
+    def test_rql_operation_error(self):
+        user1 = User(email='contact1@example.com')
+        user1.save()
+
+        user2 = User(email='contact2@example.com')
+        user2.save()
+
+        with self.assertRaises(RqlOperationError):
+            user3 = User(email='contact1@example.com')
+            user3.save()

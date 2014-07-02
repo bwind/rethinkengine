@@ -16,6 +16,10 @@ class ValidationError(Exception):
     pass
 
 
+class RqlOperationError(Exception):
+    pass
+
+
 class Meta(object):
     order_by = None
     primary_key_field = 'id'
@@ -151,6 +155,10 @@ class Document(object):
             result = table.get(self.pk).update(doc).run(get_conn())
         else:
             result = table.insert(doc).run(get_conn())
+
+        if result.get('errors', False) == 1:
+            raise RqlOperationError(result['first_error'])
+
         self._dirty = False
         if 'generated_keys' in result:
             self._data['pk'] = result['generated_keys'][0]

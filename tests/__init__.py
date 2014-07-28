@@ -19,6 +19,7 @@ class User(Document):
         primary_key_field = 'email'
 
     email = StringField()
+    born_date = DateField()
 
 
 def setUp():

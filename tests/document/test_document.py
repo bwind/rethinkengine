@@ -1,3 +1,5 @@
+import datetime
+
 from .. import Foo, User
 from rethinkengine import RqlOperationError
 
@@ -84,3 +86,14 @@ class DocumentTestCase(unittest.TestCase):
         with self.assertRaises(RqlOperationError):
             user3 = User(email='contact1@example.com')
             user3.save()
+
+    def test_value_convert(self):
+        user1 = User(
+            email='contact1@example.com',
+            born_date=datetime.date(2014, 2, 12)
+        )
+        user1.save()
+
+        u = User.objects.get(email='contact1@example.com')
+        self.assertIsInstance(u.born_date, datetime.date)
+

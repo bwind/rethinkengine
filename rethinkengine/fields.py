@@ -1,8 +1,10 @@
 import re
+import datetime
 
 
 class BaseField(object):
     _creation_counter = 0
+
     def __init__(self, required=True, default=None):
         self._creation_order = self._creation_counter
         BaseField._creation_counter += 1
@@ -11,6 +13,12 @@ class BaseField(object):
 
     def __repr__(self):
         return '<%s object>' % self.__class__.__name__
+
+    def to_python(self, value):
+        return value
+
+    def to_rethink(self, value):
+        return self.to_python(value)
 
     def is_valid(self, value):
         if not self._required and value is None:
@@ -86,6 +94,24 @@ class BooleanField(BaseField):
         if super(BooleanField, self).is_valid(value) is True:
             return True
         return isinstance(value, bool)
+
+
+class DateField(BaseField):
+    def to_python(self, value):
+        if isinstance(value, basestring):
+            year, month, day = value.split('-')
+            return datetime.date(int(year), int(month), int(day))
+        else:
+            return value
+
+    def to_rethink(self, value):
+        if isinstance(value, datetime.date):
+            return value.strftime('%Y-%m-%d')
+        else:
+            return None
+
+    def is_valid(self, value):
+        return (value is None) or (isinstance(value, datetime.date))
 
 
 class DateTimeField(BaseField):

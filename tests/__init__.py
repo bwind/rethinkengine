@@ -14,12 +14,23 @@ class Foo(Document):
     number = IntegerField(required=False)
 
 
+class User(Document):
+    class Meta(object):
+        primary_key_field = 'email'
+
+    email = StringField()
+    born_date = DateField()
+
+
 def setUp():
     connect(DB_NAME)
     try:
         Foo.table_create()
+        User.table_create()
+
     except r.RqlRuntimeError:
         pass
+
 
 def tearDown():
     try:

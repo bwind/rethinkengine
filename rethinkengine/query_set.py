@@ -96,7 +96,8 @@ class QuerySet(object):
             if name not in doc._fields:
                 continue
             # Bypass __setattr__ to prevent _dirty from being set to True
-            doc._data[name] = value
+            doc._data[name] = doc._to_python(name, value)
+
         return doc
 
     def __repr__(self):

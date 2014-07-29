@@ -16,6 +16,10 @@ class ValidationError(Exception):
     pass
 
 
+class RqlOperationError(Exception):
+    pass
+
+
 class Meta(object):
     order_by = None
     primary_key_field = 'id'
@@ -136,6 +140,7 @@ class Document(object):
         for field, value in data:
             if isinstance(field, PrimaryKeyField) and value is None:
                 continue
+
             if not field.is_valid(value):
                 raise ValidationError('%s is of wrong type %s' %
                     (field.__class__.__name__, type(value)))
@@ -151,6 +156,10 @@ class Document(object):
             result = table.get(self.pk).update(doc).run(get_conn())
         else:
             result = table.insert(doc).run(get_conn())
+
+        if result.get('errors', False) == 1:
+            raise RqlOperationError(result['first_error'])
+
         self._dirty = False
         if 'generated_keys' in result:
             self._data['pk'] = result['generated_keys'][0]
@@ -164,13 +173,27 @@ class Document(object):
     def _get_value(self, field_name):
         return self._data.get(field_name, self._fields[field_name]._default)
 
+    def _to_python(self, field_name, value):
+        if field_name in self._fields:
+            return self._fields[field_name].to_python(value)
+        else:
+            return value
+
+    def _to_rethink(self, field_name, value):
+        if field_name in self._fields:
+            return self._fields[field_name].to_rethink(value)
+        else:
+            return value
+
     @property
     def _doc(self):
         doc = {}
-        for name in self._fields:
+        for name, field_obj in self._fields.items():
             key = self.Meta.primary_key_field if name == 'pk' else name
             value = self._get_value(name)
             if key == self.Meta.primary_key_field and value is None:
                 continue
-            doc[key] = value
+
+            doc[key] = field_obj.to_rethink(value)
+
         return doc

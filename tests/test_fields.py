@@ -196,3 +196,27 @@ class BooleanFieldTestCase(unittest.TestCase):
     def test_wrong_type(self):
         f = BooleanField()
         self.assertFalse(f.is_valid('foo'))
+
+
+class GeoPointFieldTestCase(unittest.TestCase):
+    def test_default(self):
+        f = GeoPointField()
+        self.assertEqual(f._default, None)
+
+        f = GeoPointField(default=[1.1, 1.2])
+        self.assertEqual(f._default, [1.1, 1.2])
+
+    def test_none(self):
+        f = GeoPointField(required=False)
+        self.assertTrue(f.is_valid(None))
+        f = GeoPointField(required=True)
+        self.assertFalse(f.is_valid(None))
+
+    def test_is_valid(self):
+        f = GeoPointField()
+        self.assertTrue(f.is_valid([1.1, 1.2]))
+        self.assertTrue(f.is_valid((1.1, 1.2)))
+
+    def test_wrong_type(self):
+        f = GeoPointField()
+        self.assertFalse(f.is_valid('foo'))

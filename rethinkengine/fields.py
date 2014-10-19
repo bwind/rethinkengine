@@ -129,7 +129,10 @@ class GeoPointField(BaseField):
             return None
 
     def to_python(self, value):
-        return value.get('coordinates', value)
+        if value:
+            return value.get('coordinates', value)
+        else:
+            return None
 
     def is_valid(self, value):
         if super(GeoPointField, self).is_valid(value) is True:

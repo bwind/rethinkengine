@@ -153,7 +153,7 @@ class Document(object):
         table = r.table(self.Meta.table_name)
         if self.pk:
             # TODO: implement atomic updates instead of updating entire doc
-            result = table.get(self.pk).update(doc).run(get_conn())
+            result = table.get(self.pk).update(doc, non_atomic=True).run(get_conn())
         else:
             result = table.insert(doc).run(get_conn())
 

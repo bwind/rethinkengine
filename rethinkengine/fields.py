@@ -1,6 +1,8 @@
 import re
 import datetime
 
+import rethinkdb as r
+
 
 class BaseField(object):
     _creation_counter = 0
@@ -117,3 +119,22 @@ class DateField(BaseField):
 class DateTimeField(BaseField):
     def is_valid(self, value):
         return True
+
+
+class GeoPointField(BaseField):
+    def to_rethink(self, value):
+        if isinstance(value, (list, tuple)):
+            return r.point(float(value[0]), float(value[1]))
+        else:
+            return None
+
+    def to_python(self, value):
+        if value:
+            return value.get('coordinates', value)
+        else:
+            return None
+
+    def is_valid(self, value):
+        if super(GeoPointField, self).is_valid(value) is True:
+            return True
+        return isinstance(value, (list, tuple))
